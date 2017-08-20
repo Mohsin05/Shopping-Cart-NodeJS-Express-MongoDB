@@ -5,9 +5,11 @@ mongoose.connect('localhost:27017/shopping');
 
 var userLogin=[
     new Product({
+        name:'Admin',
         email:'admin@admin.com',
         password:'admin',
     }),new Product({
+        name: 'Mohsin Younas',
         email:'MohsinYounas05@gmail.com',
         password:'admin'
     })
