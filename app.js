@@ -6,16 +6,21 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var expressHbs=require('express-handlebars');
 var index = require('./routes/index');
+var user = require('./routes/user');
 var mongoose=require('mongoose');
 var session = require('express-session');
 var passport = require('passport');
 var flash = require('connect-flash');
-
+var validator = require('express-validator');
 //session
 var session = require('express-session');
 
 var app = express();
 mongoose.connect('localhost:27017/shopping');
+
+// we just import that and all the passport code is suppose to be here.
+require('./config/passport');
+
 // view engine setup
 app.engine('.hbs',expressHbs({defaultLayout: 'layout',extname:'.hbs'}));
 app.set('view engine', '.hbs');
@@ -25,18 +30,31 @@ app.set('view engine', '.hbs');
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cookieParser());
 
+//starting the validator
+app.use(validator());
+app.use(cookieParser());
 
 //this is use to save the sessoion where mysupersecret is the key
 app.use(session({secret: 'mysupersecret', resave:false, saveUninitialized:false}));
 
-
+app.use(flash());
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', index);
 
+//creating the local vaiable login to enable or disaable the login or logout button
+app.use(function (req,res,next) {
+    res.locals.login = req.isAuthenticated();
+    //by next we are letting the req to continue other wise it will keep on loading this function
+    //and will not display anything else.
+    next();
+});
+
+app.use('/user', user);
+app.use('/', index);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
