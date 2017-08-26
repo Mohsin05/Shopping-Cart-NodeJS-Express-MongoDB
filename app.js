@@ -15,6 +15,10 @@ var validator = require('express-validator');
 //session
 var session = require('express-session');
 
+//instead of using the default session we will use the connect-mongo session module. becs it is not good practice
+//to use the default memory
+var MongoStore = require('connect-mongo')(session);
+
 var app = express();
 mongoose.connect('localhost:27017/shopping');
 
@@ -36,7 +40,14 @@ app.use(validator());
 app.use(cookieParser());
 
 //this is use to save the sessoion where mysupersecret is the key
-app.use(session({secret: 'mysupersecret', resave:false, saveUninitialized:false}));
+//after installing the connect mongo module now we can add some other variable like storing the session into the
+//database and storing the cookie time, now we are also storing into the mongodb
+app.use(session({secret: 'mysupersecret',
+    resave:false,
+    saveUninitialized:false,
+    store: new MongoStore({ mongooseConnection: mongoose.connection}),
+    cookie: {maxAge:180*60*100}
+}));
 
 app.use(flash());
 app.use(passport.initialize());
@@ -46,8 +57,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 
 //creating the local vaiable login to enable or disaable the login or logout button
+//app.use is use to intite something.
 app.use(function (req,res,next) {
     res.locals.login = req.isAuthenticated();
+
+    res.locals.session = req.session;
+
     //by next we are letting the req to continue other wise it will keep on loading this function
     //and will not display anything else.
     next();

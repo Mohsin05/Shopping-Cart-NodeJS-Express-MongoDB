@@ -21,15 +21,11 @@ router.get('/signup',notLoggedIn, function(req, res, next) {
 });
 
 
-
 router.post('/signup', passport.authenticate('local.signup', {
-
-    successRedirect: '/user/signin',
+    successRedirect: '/user/profile',
     failureRedirect: '/user/signup',
     failureFlash: true
 }));
-
-
 
 
 router.post('/signin', passport.authenticate('local.signin', {

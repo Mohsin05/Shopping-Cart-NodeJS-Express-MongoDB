@@ -61,6 +61,7 @@ passport.use('local.signup', new LocalStrategy({
 ));
 
 
+
 //local.signin is the name of the stratgy
 passport.use('local.signin',new LocalStrategy({
     usernameField: 'email',
